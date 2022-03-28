@@ -1,12 +1,37 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import {BackHandler, StyleSheet, Text, View} from 'react-native';
+import WebView from "react-native-webview";
+import {useRef} from "react";
 
 export default function App() {
+
+  const webViewRef = useRef(null)
+  const goback = () => {
+    webViewRef.current.goBack();
+  };
+
+  BackHandler.addEventListener('hardwareBackPress', function () {
+    goback();
+    return true;
+  });
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+      <WebView
+          ref={webViewRef}
+          style={styles.container}
+          onLoadProgress={e => console.log('Cargando... ', Math.round(e.nativeEvent.progress*100))}
+          allowsBackForwardNavigationGestures={true}
+          originWhitelist={['*']}
+          mixedContentMode="always"
+          domStorageEnabled={true}
+          allowFileAccess={true}
+          allowUniversalAccessFromFileURLs={true}
+          onError={syntheticEvent => {
+            const { nativeEvent } = syntheticEvent;
+            console.warn('WebView error: ', nativeEvent);
+          }}
+          source={{ uri: 'https://google.com'}}
+      />
   );
 }
 
